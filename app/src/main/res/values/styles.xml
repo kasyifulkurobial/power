@@ -1,0 +1,12 @@
+<resources>
+    <style name="BottomNavigationStyle" parent="Widget.Material3.BottomNavigationView">
+        <item name="itemIconTint">@color/bottom_nav_icon_colors</item>
+        <item name="itemTextColor">@color/white</item>
+        <item name="backgroundTint">@color/purple_100</item>
+    </style>
+    <style name="SpinnerTheme" parent="Theme.AppCompat.Light">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textColorHint">@color/white</item>
+        <item name="android:background">@color/purple_blue</item>
+    </style>
+</resources>

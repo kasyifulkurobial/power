@@ -1,0 +1,77 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="horizontal"
+    android:padding="8dp">
+
+    <!-- Exercise Image -->
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/drag_icon"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_gravity="center_vertical"
+        app:lottie_rawRes="@raw/reverse_crunches"
+        app:lottie_loop="true"
+        app:lottie_autoPlay="true" />
+
+    <!-- Exercise Info -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:orientation="vertical"
+        android:layout_weight="1"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/exercise_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Crunch Perut"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:id="@+id/exercise_reps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="x16"
+            android:textSize="14sp"
+            android:textColor="@android:color/white" />
+    </LinearLayout>
+
+    <!-- Plus and Minus Buttons -->
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <Button
+            android:id="@+id/minus_button"
+            android:layout_width="55dp"
+            android:layout_height="48dp"
+            android:padding="0dp"
+            android:layout_margin="0dp"
+            android:text="-"
+            android:textColor="@color/white"
+            android:background="@android:color/transparent"
+            android:textSize="30sp" />
+
+        <Button
+            android:id="@+id/plus_button"
+            android:layout_width="55dp"
+            android:layout_height="48dp"
+            android:padding="0dp"
+            android:layout_margin="0dp"
+            android:text="+"
+            android:textColor="@color/white"
+            android:background="@android:color/transparent"
+            android:textSize="30sp" />
+
+
+    </LinearLayout>
+
+</LinearLayout>
