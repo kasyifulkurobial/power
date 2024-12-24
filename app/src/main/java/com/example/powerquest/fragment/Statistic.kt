@@ -75,8 +75,8 @@ class Statistic : Fragment() {
 
         val gifs = listOf(
             Triple("Grey", R.drawable.pixel_unscreen, 0),  // Level yang dibutuhkan: 0
-            Triple("Grom", R.drawable.grom, 5), // Level yang dibutuhkan: 5
-            Triple("Zera", R.drawable.zera, 10) // Level yang dibutuhkan: 10
+            Triple("Grom", R.drawable.grom, 5),           // Level yang dibutuhkan: 5
+            Triple("Zera", R.drawable.zera, 10)           // Level yang dibutuhkan: 10
         )
 
         // Ambil level pengguna dari UI
@@ -158,6 +158,17 @@ class Statistic : Fragment() {
                             "$gifName selected!",
                             Toast.LENGTH_SHORT
                         ).show()
+
+                        // Simpan karakter yang dipilih ke Firebase
+                        val selectedGifTag = characterImage.tag.toString()
+                        userRef.child("selectedGif").setValue(selectedGifTag)
+                            .addOnSuccessListener {
+                                Toast.makeText(requireContext(), "Character saved to Firebase", Toast.LENGTH_SHORT).show()
+                            }
+                            .addOnFailureListener { exception ->
+                                Toast.makeText(requireContext(), "Failed to save character: ${exception.message}", Toast.LENGTH_SHORT).show()
+                            }
+
                         dialog.dismiss()
                     }
                 }
@@ -180,8 +191,6 @@ class Statistic : Fragment() {
         dialog.show()
     }
 
-
-
     private fun fetchUserProgress() {
         userRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -189,6 +198,7 @@ class Statistic : Fragment() {
 
                 initializeProgressIfNeeded(snapshot)
 
+                // Ambil data dari Firebase
                 val currentLevel = snapshot.child("level").getValue(Int::class.java) ?: 0
                 val currentProgress = snapshot.child("progress").getValue(Int::class.java) ?: 0
                 val maxProgress = snapshot.child("maxProgress").getValue(Int::class.java) ?: 100
@@ -196,9 +206,15 @@ class Statistic : Fragment() {
                 val speed = snapshot.child("speed").getValue(Int::class.java) ?: 0
                 val stamina = snapshot.child("stamina").getValue(Int::class.java) ?: 0
                 val selectedGif = snapshot.child("selectedGif").getValue(String::class.java) ?: "gif_1"
+                val username = snapshot.child("username").getValue(String::class.java) ?: "Username"
 
+                // Update UI
                 updateUI(currentLevel, currentProgress, maxProgress, strength, speed, stamina, selectedGif)
                 unlockGifsBasedOnLevel(currentLevel)
+
+                // Tampilkan username di tUser
+                val tUser: TextView = requireView().findViewById(R.id.tUser)
+                tUser.text = username
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -251,9 +267,9 @@ class Statistic : Fragment() {
 
         // Update GIF
         val gifResource = when (selectedGif) {
-            "gif_1" -> R.drawable.pixel
-            "gif_2" -> R.drawable.pixel_unscreen
-            "gif_3" -> R.drawable.pixel
+            "gif_1" -> R.drawable.pixel_unscreen
+            "gif_2" -> R.drawable.grom
+            "gif_3" -> R.drawable.zera
             else -> R.drawable.pixel_unscreen
         }
         Glide.with(this).load(gifResource).into(characterImage)

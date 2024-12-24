@@ -11,6 +11,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PowerQuest">
         <activity
+            android:name=".view.InputActivity"
+            android:exported="false" />
+        <activity
             android:name=".view.AboutActivity"
             android:exported="false" />
         <activity

@@ -3,10 +3,18 @@
         <item name="itemIconTint">@color/bottom_nav_icon_colors</item>
         <item name="itemTextColor">@color/white</item>
         <item name="backgroundTint">@color/purple_100</item>
+        <item name="android:fontFamily">@font/roboto</item>
+        <item name="android:textSize">20sp</item>
     </style>
     <style name="SpinnerTheme" parent="Theme.AppCompat.Light">
         <item name="android:textColor">@color/white</item>
         <item name="android:textColorHint">@color/white</item>
         <item name="android:background">@color/purple_blue</item>
+        <item name="android:fontFamily">@font/roboto</item>
+        <item name="android:textSize">18sp</item>
     </style>
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <item name="android:fontFamily">@font/roboto</item>
+    </style>
+
 </resources>

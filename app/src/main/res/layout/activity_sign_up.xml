@@ -85,6 +85,7 @@
         android:backgroundTint="@color/purple"
         android:layout_marginBottom="16dp"
         android:textColor="#FFFFFF"
+        android:textSize="18sp"
         android:padding="12dp"
         android:textAllCaps="false" />
 
@@ -101,7 +102,7 @@
             android:layout_height="wrap_content"
             android:text="Already have account? Login"
             android:textColor="@color/white"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:gravity="start"
             android:layout_marginEnd="8dp" />
 

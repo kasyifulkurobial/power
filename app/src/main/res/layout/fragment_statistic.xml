@@ -5,7 +5,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:background="@color/purple_blue"
     android:layout_gravity="center"
-    tools:context=".Statistic">
+    tools:context=".fragment.Statistic">
+
+    <TextView
+        android:id="@+id/tUser"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="30dp"
+        android:gravity="center"
+        android:text="Username"
+        android:textColor="@color/white"
+        android:textSize="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Character Image -->
     <ImageView
