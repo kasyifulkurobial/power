@@ -95,12 +95,13 @@ class CustomFragment : Fragment() {
                 }
 
                 daysList.sort()
-                recyclerViewDays.adapter?.notifyDataSetChanged()
-                updateUIVisibility()
+                Log.d("CustomFragment", "daysList: $daysList")
 
-                // Periksa dan reset jika semua hari selesai
+                recyclerViewDays.adapter?.notifyDataSetChanged() // Pastikan RecyclerView diperbarui
+                updateUIVisibility()
                 checkAndResetCompletion()
             }
+
 
             override fun onCancelled(error: DatabaseError) {
                 Toast.makeText(requireContext(), "Error: ${error.message}", Toast.LENGTH_SHORT).show()
@@ -151,17 +152,18 @@ class CustomFragment : Fragment() {
             .setTitle("Konfirmasi Hapus")
             .setMessage("Apakah Anda yakin ingin menghapus $dayToDelete?")
             .setPositiveButton("Oke") { _, _ ->
+                // Hapus data dari Firebase
                 database.child(dayToDelete).removeValue().addOnSuccessListener {
-                    if (position in daysList.indices) {
-                        daysList.removeAt(position)
-                        recyclerViewDays.adapter?.notifyItemRemoved(position)
-                        updateUIVisibility()
-                    }
-                }.addOnFailureListener {
+                    // Biarkan Firebase listener memperbarui UI
+                    Toast.makeText(requireContext(), "$dayToDelete berhasil dihapus", Toast.LENGTH_SHORT).show()
+                }.addOnFailureListener { exception ->
+                    // Jika gagal, beri tahu pengguna dan kembalikan posisi RecyclerView
+                    Toast.makeText(requireContext(), "Gagal menghapus: ${exception.message}", Toast.LENGTH_SHORT).show()
                     recyclerViewDays.adapter?.notifyItemChanged(position)
                 }
             }
             .setNegativeButton("Batal") { _, _ ->
+                // Jika dibatalkan, kembalikan posisi RecyclerView
                 recyclerViewDays.adapter?.notifyItemChanged(position)
             }
             .setCancelable(false)

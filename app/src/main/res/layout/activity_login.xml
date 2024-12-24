@@ -93,7 +93,7 @@
     <TextView
         android:id="@+id/text_forgot_password"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="41dp"
         android:layout_weight="1"
         android:text="Forgot Password?"
         android:textColor="@color/white"
