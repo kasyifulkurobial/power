@@ -4,12 +4,15 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.powerquest.R
 import com.example.powerquest.adapter.EditAdapter
 import com.example.powerquest.data.ExerciseItem
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
 class DetailEdit : AppCompatActivity() {
 
@@ -17,30 +20,31 @@ class DetailEdit : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var adapter: EditAdapter
     private var exercises: ArrayList<ExerciseItem>? = null
+    private var selectedDay: String? = null
     private val availableExercises = listOf(
-        ExerciseItem("Box Jump", R.raw.box_jump, "x15"),
-        ExerciseItem("Bumper", R.raw.bumper, "x10"),
-        ExerciseItem("Burpees", R.raw.burpees, "x15"),
-        ExerciseItem("Chair Stand", R.raw.chair_stand, "x10"),
-        ExerciseItem("Cobra", R.raw.cobras, "x15"),
-        ExerciseItem("Frog Press", R.raw.frog_press, "x10"),
-        ExerciseItem("High Knee", R.raw.high_knees, "x15"),
-        ExerciseItem("Inchworm", R.raw.inchworm, "10"),
-        ExerciseItem("Jumping Jack", R.raw.jumping_jack, "x15"),
-        ExerciseItem("Jumping Squats", R.raw.jumping_squats, "x10"),
-        ExerciseItem("Leg Up", R.raw.leg_up, "x15"),
-        ExerciseItem("Press Up", R.raw.press_up, "x10"),
-        ExerciseItem("Pull Up", R.raw.pull_up, "x15"),
-        ExerciseItem("Punches", R.raw.punches, "x10"),
-        ExerciseItem("Push Up", R.raw.push_up, "x15"),
-        ExerciseItem("Reverse Crunches", R.raw.reverse_crunches, "x10"),
-        ExerciseItem("Rope", R.raw.rope, "x15"),
-        ExerciseItem("Sprint", R.raw.run, "15 Detik"),
-        ExerciseItem("Single Leg Hip", R.raw.single_leg_hip, "30 Detik"),
-        ExerciseItem("Sit Up", R.raw.sit_up, "10"),
-        ExerciseItem("Split Jump", R.raw.split_jump, "x15"),
-        ExerciseItem("Squat Kick", R.raw.squat_kicks, "x10"),
-        ExerciseItem("Squat Reach", R.raw.squat_reach, "x15")
+        ExerciseItem("Box Jump", "box_jump.json", "x15"),
+        ExerciseItem("Bumper", "bumper.json", "x10"),
+        ExerciseItem("Burpees", "burpees.json", "x15"),
+        ExerciseItem("Chair Stand", "chair_stand.json", "x10"),
+        ExerciseItem("Cobra", "cobras.json", "x15"),
+        ExerciseItem("Frog Press", "frog_press.json", "x10"),
+        ExerciseItem("High Knee", "high_knees.json", "x15"),
+        ExerciseItem("Inchworm", "inchworm.json", "x10"),
+        ExerciseItem("Jumping Jack", "jumping_jack.json", "x15"),
+        ExerciseItem("Jumping Squats", "jumping_squats.json", "x10"),
+        ExerciseItem("Leg Up", "leg_up.json", "x15"),
+        ExerciseItem("Press Up", "press_up.json", "x10"),
+        ExerciseItem("Pull Up", "pull_up.json", "x15"),
+        ExerciseItem("Punches", "punches.json", "x10"),
+        ExerciseItem("Push Up", "push_up.json", "x15"),
+        ExerciseItem("Reverse Crunches", "reverse_crunches.json", "x10"),
+        ExerciseItem("Rope", "rope.json", "x15"),
+        ExerciseItem("Sprint", "run.json", "15 Detik"),
+        ExerciseItem("Single Leg Hip", "single_leg_hip.json", "30 Detik"),
+        ExerciseItem("Sit Up", "sit_up.json", "x10"),
+        ExerciseItem("Split Jump", "split_jump.json", "x15"),
+        ExerciseItem("Squat Kick", "squat_kicks.json", "x10"),
+        ExerciseItem("Squat Reach", "squat_reach.json", "x15")
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,15 +56,23 @@ class DetailEdit : AppCompatActivity() {
 
         // Ambil data dari Intent
         exercises = intent.getParcelableArrayListExtra("selected_exercises")
+        selectedDay = intent.getStringExtra("selected_day")
 
         setupRecyclerView()
 
-        // Kembalikan data ke DetailCustom saat tombol Simpan diklik
+        // Kembalikan data ke DetailCustom dan simpan ke Firebase saat tombol Simpan diklik
         saveButton.setOnClickListener {
-            val resultIntent = Intent()
-            resultIntent.putParcelableArrayListExtra("selected_exercises", exercises)
-            setResult(Activity.RESULT_OK, resultIntent)
-            finish()
+            if (exercises.isNullOrEmpty() || selectedDay.isNullOrEmpty()) {
+                Toast.makeText(this, "Data tidak valid untuk disimpan.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            saveExercisesToFirebase(selectedDay!!, exercises!!) {
+                val resultIntent = Intent()
+                resultIntent.putParcelableArrayListExtra("selected_exercises", exercises)
+                setResult(Activity.RESULT_OK, resultIntent)
+                finish()
+            }
         }
     }
 
@@ -73,5 +85,30 @@ class DetailEdit : AppCompatActivity() {
 
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
+    }
+
+    private fun saveExercisesToFirebase(day: String, updatedExercises: ArrayList<ExerciseItem>, onSuccess: () -> Unit) {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            val userId = currentUser.uid
+            val databaseRef = FirebaseDatabase.getInstance()
+                .reference
+                .child("user_progress")
+                .child(userId)
+                .child("custom_schedule")
+                .child(day)
+                .child("exercises")
+
+            databaseRef.setValue(updatedExercises)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Data latihan berhasil diperbarui!", Toast.LENGTH_SHORT).show()
+                    onSuccess()
+                }
+                .addOnFailureListener { exception ->
+                    Toast.makeText(this, "Gagal menyimpan data: ${exception.message}", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(this, "Pengguna tidak terautentikasi.", Toast.LENGTH_SHORT).show()
+        }
     }
 }

@@ -33,6 +33,33 @@ class StartCustom : AppCompatActivity() {
     private lateinit var userRef: DatabaseReference
     private val earnedProgressPerExercise = 10 // Setiap latihan Custom menyumbang 10% ke progres
 
+    // Peta untuk mencocokkan nama file dari Firebase ke resource ID di res/raw
+    private val animationResMap = mapOf(
+        "box_jump.json" to R.raw.box_jump,
+        "bumper.json" to R.raw.bumper,
+        "burpees.json" to R.raw.burpees,
+        "chair_stand.json" to R.raw.chair_stand,
+        "cobra.json" to R.raw.cobras,
+        "frog_press.json" to R.raw.frog_press,
+        "high_knees.json" to R.raw.high_knees,
+        "inchworm.json" to R.raw.inchworm,
+        "jumping_jack.json" to R.raw.jumping_jack,
+        "jumping_squats.json" to R.raw.jumping_squats,
+        "leg_up.json" to R.raw.leg_up,
+        "press_up.json" to R.raw.press_up,
+        "pull_up.json" to R.raw.pull_up,
+        "punches.json" to R.raw.punches,
+        "push_up.json" to R.raw.push_up,
+        "reverse_crunches.json" to R.raw.reverse_crunches,
+        "rope.json" to R.raw.rope,
+        "run.json" to R.raw.run,
+        "single_leg_hip.json" to R.raw.single_leg_hip,
+        "sit_up.json" to R.raw.sit_up,
+        "split_jump.json" to R.raw.split_jump,
+        "squat_kicks.json" to R.raw.squat_kicks,
+        "squat_reach.json" to R.raw.squat_reach
+    )
+
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,7 +113,16 @@ class StartCustom : AppCompatActivity() {
 
         val exercise = exercises[currentIndex]
         titleText.text = exercise.title
-        lottieAnimationView.setAnimation(exercise.animationRes)
+
+        // Memuat animasi dari res/raw
+        val rawResId = animationResMap[exercise.animationRes]
+        if (rawResId != null) {
+            lottieAnimationView.setAnimation(rawResId) // Muat animasi dari raw
+            lottieAnimationView.playAnimation()
+        } else {
+            repsTextView.text = "Animasi tidak ditemukan"
+            lottieAnimationView.cancelAnimation()
+        }
 
         when {
             exercise.reps.startsWith("x") -> {
@@ -151,7 +187,6 @@ class StartCustom : AppCompatActivity() {
 
             val newProgress = currentProgress + earnedProgressPerExercise
             if (newProgress >= 100) {
-                // Level up logic
                 userRef.child("level").setValue(currentLevel + 1)
                 userRef.child("progress").setValue(newProgress - 100)
                 userRef.child("strength").setValue(currentStrength + 3)
@@ -193,7 +228,6 @@ class StartCustom : AppCompatActivity() {
         setResult(RESULT_OK, resultIntent)
         finish()
     }
-
 
     private fun finishWithError(message: String) {
         android.util.Log.e("StartCustom", message)

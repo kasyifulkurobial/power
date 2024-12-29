@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.powerquest.R
 import com.example.powerquest.adapter.DetailAdapter
 import com.example.powerquest.data.ExerciseItem
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 
 class DetailCustom : AppCompatActivity() {
@@ -20,6 +21,7 @@ class DetailCustom : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var editTextView: TextView
     private var selectedExercises: ArrayList<ExerciseItem>? = null
+    private var selectedDay: String? = null
 
     // Activity Result Launcher untuk DetailEdit
     private val editLauncher = registerForActivityResult(
@@ -27,7 +29,7 @@ class DetailCustom : AppCompatActivity() {
     ) { result ->
         if (result.resultCode == RESULT_OK) {
             selectedExercises = result.data?.getParcelableArrayListExtra("selected_exercises")
-            updateFirebaseData()
+            updateFirebaseData() // Perbarui Firebase dengan data baru
         }
     }
 
@@ -39,7 +41,9 @@ class DetailCustom : AppCompatActivity() {
         editTextView = findViewById(R.id.textEdit)
         startCustomButton = findViewById(R.id.start_custom)
 
+        // Ambil data dari Intent
         selectedExercises = intent.getParcelableArrayListExtra("selected_exercises")
+        selectedDay = intent.getStringExtra("selected_day")
 
         setupRecyclerView()
 
@@ -47,6 +51,7 @@ class DetailCustom : AppCompatActivity() {
         editTextView.setOnClickListener {
             val intent = Intent(this, DetailEdit::class.java)
             intent.putParcelableArrayListExtra("selected_exercises", selectedExercises)
+            intent.putExtra("selected_day", selectedDay) // Kirimkan selected_day
             editLauncher.launch(intent)
         }
 
@@ -57,7 +62,6 @@ class DetailCustom : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            val selectedDay = intent.getStringExtra("selected_day")
             val intent = Intent(this, StartCustom::class.java).apply {
                 putParcelableArrayListExtra("selected_exercises", selectedExercises)
                 putExtra("selected_day", selectedDay)
@@ -65,7 +69,6 @@ class DetailCustom : AppCompatActivity() {
             startActivity(intent)
         }
     }
-
 
     private fun setupRecyclerView() {
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -80,18 +83,22 @@ class DetailCustom : AppCompatActivity() {
 
     // Update Firebase dengan data terbaru
     private fun updateFirebaseData() {
-        val selectedDay = intent.getStringExtra("selected_day")
         if (selectedDay != null && !selectedExercises.isNullOrEmpty()) {
-            FirebaseDatabase.getInstance().reference.child("custom_schedule")
-                .child(selectedDay)
+            val userId = FirebaseAuth.getInstance().currentUser?.uid.orEmpty()
+            FirebaseDatabase.getInstance()
+                .reference
+                .child("user_progress")
+                .child(userId)
+                .child("custom_schedule")
+                .child(selectedDay!!)
                 .child("exercises")
                 .setValue(selectedExercises)
                 .addOnSuccessListener {
                     setupRecyclerView() // Refresh RecyclerView
-                    showToast("Data berhasil diperbarui")
+                    showToast("Data berhasil diperbarui!")
                 }
-                .addOnFailureListener {
-                    showToast("Gagal memperbarui data")
+                .addOnFailureListener { exception ->
+                    showToast("Gagal memperbarui data: ${exception.message}")
                 }
         }
     }

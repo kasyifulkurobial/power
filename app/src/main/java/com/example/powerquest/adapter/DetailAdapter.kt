@@ -3,69 +3,74 @@ package com.example.powerquest.adapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.airbnb.lottie.LottieAnimationView
-import com.example.powerquest.data.ExerciseItem
 import com.example.powerquest.R
+import com.example.powerquest.data.ExerciseItem
 
 class DetailAdapter(
-    private val exercises: MutableList<ExerciseItem>,
-    private val onUpdateReps: (ExerciseItem) -> Unit
-) : RecyclerView.Adapter<DetailAdapter.DetailViewHolder>() {
+    private val exercises: List<ExerciseItem>,
+    private val onExerciseUpdated: (ExerciseItem) -> Unit
+) : RecyclerView.Adapter<DetailAdapter.ExerciseViewHolder>() {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DetailViewHolder {
+    // Peta untuk mencocokkan nama file JSON dengan ID sumber daya
+    private val animationResMap = mapOf(
+        "box_jump.json" to R.raw.box_jump,
+        "bumper.json" to R.raw.bumper,
+        "burpees.json" to R.raw.burpees,
+        "chair_stand.json" to R.raw.chair_stand,
+        "cobra.json" to R.raw.cobras,
+        "frog_press.json" to R.raw.frog_press,
+        "high_knees.json" to R.raw.high_knees,
+        "inchworm.json" to R.raw.inchworm,
+        "jumping_jack.json" to R.raw.jumping_jack,
+        "jumping_squats.json" to R.raw.jumping_squats,
+        "leg_up.json" to R.raw.leg_up,
+        "press_up.json" to R.raw.press_up,
+        "pull_up.json" to R.raw.pull_up,
+        "punches.json" to R.raw.punches,
+        "push_up.json" to R.raw.push_up,
+        "reverse_crunches.json" to R.raw.reverse_crunches,
+        "rope.json" to R.raw.rope,
+        "run.json" to R.raw.run,
+        "single_leg_hip.json" to R.raw.single_leg_hip,
+        "sit_up.json" to R.raw.sit_up,
+        "split_jump.json" to R.raw.split_jump,
+        "squat_kicks.json" to R.raw.squat_kicks,
+        "squat_reach.json" to R.raw.squat_reach
+    )
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ExerciseViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.detail_layout, parent, false)
-        return DetailViewHolder(view)
+        return ExerciseViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: DetailViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ExerciseViewHolder, position: Int) {
         val exercise = exercises[position]
         holder.bind(exercise)
     }
 
     override fun getItemCount() = exercises.size
 
-    inner class DetailViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        private val listName: TextView = view.findViewById(R.id.list_name)
-        private val listReps: TextView = view.findViewById(R.id.list_reps)
+    inner class ExerciseViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private val textItem: TextView = view.findViewById(R.id.list_name)
+        private val textReps: TextView = view.findViewById(R.id.list_reps)
         private val lottieAnimation: LottieAnimationView = view.findViewById(R.id.drag_animation)
-        private val buttonPlus: Button = view.findViewById(R.id.plus_button)
-        private val buttonMinus: Button = view.findViewById(R.id.minus_button)
 
         fun bind(exercise: ExerciseItem) {
-            listName.text = exercise.title
-            listReps.text = exercise.reps
-            lottieAnimation.setAnimation(exercise.animationRes)
+            textItem.text = exercise.title
+            textReps.text = exercise.reps
 
-            buttonPlus.setOnClickListener {
-                exercise.reps = adjustReps(exercise.reps, increment = true)
-                listReps.text = exercise.reps
-                onUpdateReps(exercise)
-            }
-
-            buttonMinus.setOnClickListener {
-                exercise.reps = adjustReps(exercise.reps, increment = false)
-                listReps.text = exercise.reps
-                onUpdateReps(exercise)
-            }
-        }
-
-        private fun adjustReps(reps: String, increment: Boolean): String {
-            return if (reps.startsWith("x")) {
-                // Repetisi
-                val currentReps = reps.removePrefix("x").toIntOrNull() ?: 1
-                val newReps = currentReps + if (increment) 1 else -1
-                "x${newReps.coerceAtLeast(1)}"
-            } else if (reps.contains("Detik", ignoreCase = true)) {
-                // Timer
-                val currentSeconds = reps.filter { it.isDigit() }.toIntOrNull() ?: 0
-                val newSeconds = currentSeconds + if (increment) 5 else -5
-                "${newSeconds.coerceAtLeast(5)} Detik"
+            // Ambil ID raw dari peta
+            val rawResId = animationResMap[exercise.animationRes]
+            if (rawResId != null) {
+                lottieAnimation.setAnimation(rawResId)
             } else {
-                reps // Format tidak dikenal, tidak diubah
+                // Jika tidak ditemukan, kosongkan animasi
+                lottieAnimation.cancelAnimation()
+                lottieAnimation.clearAnimation()
             }
         }
     }
