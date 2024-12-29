@@ -48,8 +48,25 @@ class ExercisesAdapter(
         fun bind(exercise: ExerciseItem, isChecked: Boolean) {
             textItem.text = exercise.title
             textReps.text = exercise.reps
-            lottieAnimation.setAnimation(exercise.animationRes)
+
+            // Gunakan nama file untuk mendapatkan ID sumber daya di folder raw
+            val rawResId = getRawResIdByName(exercise.animationRes)
+            if (rawResId != 0) {
+                lottieAnimation.setAnimation(rawResId) // Muat animasi dari raw
+            } else {
+                // Jika file tidak ditemukan, beri animasi default atau kosongkan animasi
+                lottieAnimation.cancelAnimation()
+                lottieAnimation.clearAnimation()
+            }
+
             checkboxItem.isChecked = isChecked
+        }
+
+        private fun getRawResIdByName(fileName: String): Int {
+            // Cari ID sumber daya berdasarkan nama file tanpa ekstensi
+            return itemView.context.resources.getIdentifier(
+                fileName.replace(".json", ""), "raw", itemView.context.packageName
+            )
         }
     }
 }

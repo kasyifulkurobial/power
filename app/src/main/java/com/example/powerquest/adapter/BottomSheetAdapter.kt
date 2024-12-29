@@ -1,5 +1,6 @@
 package com.example.powerquest.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,10 +36,16 @@ class BottomSheetAdapter(
         private val checkbox: CheckBox = view.findViewById(R.id.checkbox_item)
 
         fun bind(exercise: ExerciseItem) {
-            // Set data untuk setiap item
             titleItem.text = exercise.title
             titleReps.text = exercise.reps
-            lottieAnimation.setAnimation(exercise.animationRes)
+
+            val animationResId = getAnimationResId(exercise.animationRes)
+            if (animationResId != null) {
+                lottieAnimation.setAnimation(animationResId)
+                lottieAnimation.playAnimation()
+            } else {
+                Log.e("LottieError", "Animation resource not found: ${exercise.animationRes}")
+            }
 
             // Handle klik checkbox untuk memilih item
             checkbox.setOnCheckedChangeListener { _, isChecked ->
@@ -47,5 +54,20 @@ class BottomSheetAdapter(
                 }
             }
         }
+
+        private fun getAnimationResId(animationResName: String): Int? {
+            return try {
+                val resId = itemView.context.resources.getIdentifier(
+                    animationResName.removeSuffix(".json"), // Hapus .json
+                    "raw",
+                    itemView.context.packageName
+                )
+                if (resId != 0) resId else null
+            } catch (e: Exception) {
+                Log.e("LottieError", "Failed to get animation resource ID for $animationResName", e)
+                null
+            }
+        }
+
     }
 }

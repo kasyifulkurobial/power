@@ -2,6 +2,7 @@ package com.example.powerquest.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,10 +41,17 @@ class EditAdapter(
         private val buttonEdit: TextView = view.findViewById(R.id.btnEdit)
 
         fun bind(exercise: ExerciseItem, position: Int) {
-            // Set data untuk item
             listName.text = exercise.title
             listReps.text = exercise.reps
-            lottieAnimation.setAnimation(exercise.animationRes)
+
+            // Mengatur animasi dari res/raw
+            val animationResId = getAnimationResId(exercise.animationRes)
+            if (animationResId != null) {
+                lottieAnimation.setAnimation(animationResId) // Gunakan resource ID dari raw
+                lottieAnimation.playAnimation()
+            } else {
+                Log.e("LottieError", "Animation resource not found: ${exercise.animationRes}")
+            }
 
             // Handle klik tombol Edit
             buttonEdit.setOnClickListener {
@@ -53,23 +61,34 @@ class EditAdapter(
 
         @SuppressLint("InflateParams")
         private fun showEditBottomSheet(index: Int) {
-            // Membuka BottomSheet dialog
             val bottomSheetDialog = BottomSheetDialog(context)
             val view = LayoutInflater.from(context).inflate(R.layout.dialog_edit_exercise, null)
             bottomSheetDialog.setContentView(view)
 
-            // Setup RecyclerView dalam BottomSheet
             val recyclerView = view.findViewById<RecyclerView>(R.id.edit_recycler_view_exercises)
             recyclerView.layoutManager = LinearLayoutManager(context)
             recyclerView.adapter = BottomSheetAdapter(availableExercises) { selectedExercise ->
-                // Memperbarui data item
                 exercises[index] = selectedExercise
-                notifyItemChanged(index) // Refresh tampilan item
-                onExerciseUpdated(index, selectedExercise) // Callback ke aktivitas
+                notifyItemChanged(index)
+                onExerciseUpdated(index, selectedExercise)
                 bottomSheetDialog.dismiss()
             }
 
             bottomSheetDialog.show()
+        }
+
+        private fun getAnimationResId(animationResName: String): Int? {
+            return try {
+                val resId = context.resources.getIdentifier(
+                    animationResName.removeSuffix(".json"),
+                    "raw",
+                    context.packageName
+                )
+                if (resId != 0) resId else null
+            } catch (e: Exception) {
+                Log.e("LottieError", "Failed to get animation resource ID for $animationResName", e)
+                null
+            }
         }
     }
 }

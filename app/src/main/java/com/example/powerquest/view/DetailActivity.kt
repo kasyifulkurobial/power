@@ -46,23 +46,24 @@ class DetailActivity : AppCompatActivity() {
                     return
                 }
 
-                // Ambil nama resource gambar
                 val imageName = snapshot.child("image").value as? String ?: ""
                 val imageResId = resources.getIdentifier(imageName, "drawable", packageName)
 
                 // Ambil data latihan
                 val exercises = snapshot.child("exercises").children.mapNotNull {
-                    val animation = it.child("animation").value as? Long
+                    val animation = it.child("animation").value as? String
                     val name = it.child("name").value as? String
                     val reps = it.child("reps").value as? String
                     if (animation != null && name != null && reps != null) {
-                        Triple(animation.toInt(), name, reps)
+                        Triple(animation, name, reps)
                     } else {
                         null
                     }
                 }
 
-                val animations = exercises.map { it.first }
+                val animations = exercises.map {
+                    resources.getIdentifier(it.first, "raw", packageName)
+                }
                 val names = exercises.map { it.second }
                 val reps = exercises.map { it.third }
 

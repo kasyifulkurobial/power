@@ -6,6 +6,6 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class ExerciseItem(
     var title: String = "",
-    var animationRes: Int = 0,
+    var animationRes: String = "",
     var reps: String = ""
 ) : Parcelable
